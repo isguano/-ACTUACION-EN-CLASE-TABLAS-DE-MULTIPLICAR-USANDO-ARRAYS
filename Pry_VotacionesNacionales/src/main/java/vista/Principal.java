@@ -1,4 +1,3 @@
-
 package vista;
 
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ import javax.swing.table.DefaultTableModel;
 public class Principal extends javax.swing.JFrame {
 
     public Principal() {
-        initComponents();
+       initComponents();
        configurarTabla();
     }
     ArrayList<String>votaciones=new ArrayList<>();
@@ -29,8 +28,6 @@ public class Principal extends javax.swing.JFrame {
         mt.addColumn("Lista");
         mt.addColumn("Votos");
         
-        
-        // Agregamos los candidatos iniciales a la tabla
         mt.addRow(new Object[]{"Daniel Noboa", "ADN", "7", 0});
         mt.addRow(new Object[]{"Luisa González", "RC", "5", 0});
         mt.addRow(new Object[]{"Andrea González", "PSC", "3", 0});
@@ -52,7 +49,6 @@ public class Principal extends javax.swing.JFrame {
         } else if (votosAndrea > votosNoboa && votosAndrea > votosLuisa) {
             ganador = "Andrea González";
         }
-        
         Resultado.setText(ganador);
     } 
     
@@ -271,12 +267,11 @@ public class Principal extends javax.swing.JFrame {
             return;
         }
 
-        // Agregamos el voto a la lista
+       
         votaciones.add(candidato);
         actualizarTabla();
         determinarGanador();
         
-        // Limpiar campos y selección
         txt_nombre.setText("");
         txt_cedula.setText("");
         noboa.setSelected(false);

@@ -1,4 +1,3 @@
-
 package com.mycompany.pry_votacionesnacionales;
 
 import vista.Principal;
