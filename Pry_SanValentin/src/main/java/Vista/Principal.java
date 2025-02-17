@@ -9,43 +9,75 @@ public class Principal extends javax.swing.JFrame {
 
     public Principal() {
         initComponents();
-        mostrarDatosEnTabla();
+        configurarTabla();
     }
     DefaultTableModel mt=new DefaultTableModel();
- 
-    public void listado() {
+    
+    private void configurarTabla() {
+        mt.addColumn("Remitente");
+        mt.addColumn("Destinatario");
+        mt.addColumn("Mensaje");
+        tabla.setModel(mt);
+    }    
+    //mandara al controlador los mensajes
+    public void actualizarMensaje() {
         mt.setRowCount(0);
         for (Contenido mc : Buzon_SanValentin_Singleton.getInstancia().ObtenerMensajes()) {
             mt.addRow(new Object[]{mc.remitario,mc.destinario,mc.contenido});
         }
     }
-    
-            
-    
-    public void mostrarDatosEnTabla(){   
-           
-        mt.addColumn("Remitente");
-        mt.addColumn("Destinario");
-        mt.addColumn("Mensaje");
-        
-        tabla.setModel(mt);        
+    //captura de datos y anañade al controlador en un arrayList
+    public void Agregrar(){
 
-        
-        
-    }   
-    public void obtener(){
-        int seleccion = tabla.getSelectedRow();
-        String[] datos = Buzon_SanValentin_Singleton.getInstancia().obtener(seleccion).split("-");
-        txt_remitente.setText(datos[0]);
-        txt_destinario.setText(datos[1]);
-        txt_mensaje.setText(datos[2]);
-        
-        txt_remitente.repaint();
-        txt_destinario.repaint();
-        txt_mensaje.repaint();
+        String remitente = txt_remitente.getText();
+        String destinario = txt_destinario.getText();
+        String mensaje = txt_mensaje.getText();
+        if (remitente.isEmpty() || destinario.isEmpty() || mensaje.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese datos en los campos vacios  ");
+            return;
+        }
+        Buzon_SanValentin_Singleton.getInstancia().agregar(remitente, destinario, mensaje); 
+        actualizarMensaje();
+        limpiarCampos();
     }
+    //Limpieza de campos de entrada
+    public void limpiarCampos(){
+        txt_remitente.setText("");
+        txt_destinario.setText("");
+        txt_mensaje.setText("");        
+    }
+    //metodo para borrar 
+    public void borrarMensaje(){
+        int filaSeleccionada  = tabla.getSelectedRow();    
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un mensaje para borrar.");
+            return;
+        }
+        Buzon_SanValentin_Singleton.getInstancia().borrar(filaSeleccionada);
+        actualizarMensaje();
+    } 
+    
+    //metodo para editar mensaje 
+    public void editarMensaje() {                                           
+        int filaSeleccionada = tabla.getSelectedRow();
 
+        if (filaSeleccionada != -1) {
+            String nuevoRemitente = JOptionPane.showInputDialog(this, "Nuevo remitente:", mt.getValueAt(filaSeleccionada, 0));
+            String nuevoDestinario = JOptionPane.showInputDialog(this, "Nuevo destinatario:", mt.getValueAt(filaSeleccionada, 1));
+            String nuevoMensaje = JOptionPane.showInputDialog(this, "Nuevo mensaje:", mt.getValueAt(filaSeleccionada, 2));
 
+            if (nuevoRemitente != null && nuevoDestinario != null && nuevoMensaje != null) {
+                mt.setValueAt(nuevoRemitente, filaSeleccionada, 0);
+                mt.setValueAt(nuevoDestinario, filaSeleccionada, 1);
+                mt.setValueAt(nuevoMensaje, filaSeleccionada, 2);
+                Buzon_SanValentin_Singleton.getInstancia().editar(nuevoRemitente, nuevoDestinario, nuevoMensaje);
+                actualizarMensaje();
+                limpiarCampos();
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Seleccione una fila para editar");
+        }
+    }    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -63,6 +95,7 @@ public class Principal extends javax.swing.JFrame {
         tabla = new javax.swing.JTable();
         bot_borrar = new javax.swing.JButton();
         bot_editar = new javax.swing.JButton();
+        bot_salir = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -112,6 +145,13 @@ public class Principal extends javax.swing.JFrame {
             }
         });
 
+        bot_salir.setText("Salir");
+        bot_salir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bot_salirActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -142,11 +182,17 @@ public class Principal extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addGap(238, 238, 238))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(34, 34, 34)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(bot_editar)
-                    .addComponent(bot_borrar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(bot_editar)
+                            .addComponent(bot_borrar))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(bot_salir)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -156,10 +202,9 @@ public class Principal extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel4)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(29, 29, 29)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -175,11 +220,17 @@ public class Principal extends javax.swing.JFrame {
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(bot_enviar)
-                        .addGap(81, 81, 81)
-                        .addComponent(bot_borrar)
-                        .addGap(18, 18, 18)
-                        .addComponent(bot_editar)
-                        .addContainerGap(46, Short.MAX_VALUE))))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(81, 81, 81)
+                                .addComponent(bot_borrar)
+                                .addGap(18, 18, 18)
+                                .addComponent(bot_editar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(bot_salir)))))
+                .addContainerGap())
         );
 
         pack();
@@ -187,48 +238,34 @@ public class Principal extends javax.swing.JFrame {
 
     private void bot_enviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bot_enviarActionPerformed
 
-        String remitente = txt_remitente.getText();
-        String destinario = txt_destinario.getText();
-        String mensaje = txt_mensaje.getText();
-        
-        if (remitente.isEmpty() || destinario.isEmpty() || mensaje.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Ingrese datos en los campos vacios  ");
-            return;
-        }
-        
-        Buzon_SanValentin_Singleton.getInstancia().agregar(remitente, destinario, mensaje);
-       
-        listado();
-
-        txt_remitente.setText("");
-        txt_destinario.setText("");
-        txt_mensaje.setText(" ");
-
+        Agregrar();
         // TODO add your handling code here:
     }//GEN-LAST:event_bot_enviarActionPerformed
 
     private void bot_borrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bot_borrarActionPerformed
-        int borrar = tabla.getSelectedRow();
-        Buzon_SanValentin_Singleton.getInstancia().borrar(borrar);
-        listado();
+
+        borrarMensaje();
         // TODO add your handling code here:
     }//GEN-LAST:event_bot_borrarActionPerformed
 
     private void bot_editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bot_editarActionPerformed
 
-        int borrar = tabla.getSelectedRow();
-        obtener();
-        Buzon_SanValentin_Singleton.getInstancia().editar(borrar, txt_remitente.getText(), txt_destinario.getText(), txt_mensaje.getText());
-        listado();
-        
-        
+        editarMensaje();
+        // TODO add your handling code here:        
     }//GEN-LAST:event_bot_editarActionPerformed
+
+    private void bot_salirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bot_salirActionPerformed
+
+        this.dispose();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bot_salirActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bot_borrar;
     private javax.swing.JButton bot_editar;
     private javax.swing.JButton bot_enviar;
+    private javax.swing.JButton bot_salir;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -241,3 +278,98 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JTextField txt_remitente;
     // End of variables declaration//GEN-END:variables
 }
+/*
+// Vista: Principal.java
+package Vista;
+
+import Controlador.Buzon_SanValentin_Singleton;
+import Modelo.Contenido;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+public final class Principal extends javax.swing.JFrame {
+
+    private final DefaultTableModel mt = new DefaultTableModel();
+    
+    public Principal() {
+        initComponents();
+        configurarTabla();
+        actualizarTabla();
+    }
+    
+    private void configurarTabla() {
+        mt.addColumn("Remitente");
+        mt.addColumn("Destinatario");
+        mt.addColumn("Mensaje");
+        tabla.setModel(mt);
+    }
+    
+    private void actualizarTabla() {
+        mt.setRowCount(0);
+        for (Contenido mensaje : Buzon_SanValentin_Singleton.getInstancia().ObtenerMensajes()) {
+            mt.addRow(new Object[]{mensaje.getRemitario(), mensaje.getDestinario(), mensaje.getContenido()});
+        }
+    }
+    
+    private void agregarMensaje() {
+        String remitente = txt_remitente.getText().trim();
+        String destinatario = txt_destinario.getText().trim();
+        String mensaje = txt_mensaje.getText().trim();
+        
+        if (remitente.isEmpty() || destinatario.isEmpty() || mensaje.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese datos en los campos vacíos.");
+            return;
+        }
+        
+        Buzon_SanValentin_Singleton.getInstancia().agregar(remitente, destinatario, mensaje);
+        actualizarTabla();
+        limpiarCampos();
+    }
+    
+    private void limpiarCampos() {
+        txt_remitente.setText("");
+        txt_destinario.setText("");
+        txt_mensaje.setText("");
+    }
+    
+    private void borrarMensaje() {
+        int filaSeleccionada = tabla.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un mensaje para borrar.");
+            return;
+        }
+        Buzon_SanValentin_Singleton.getInstancia().borrar(filaSeleccionada);
+        actualizarTabla();
+    }
+    
+    private void editarMensaje() {
+        int filaSeleccionada = tabla.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un mensaje para editar.");
+            return;
+        }
+        String remitente = txt_remitente.getText().trim();
+        String destinatario = txt_destinario.getText().trim();
+        String mensaje = txt_mensaje.getText().trim();
+        
+        if (remitente.isEmpty() || destinatario.isEmpty() || mensaje.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese datos en los campos vacíos.");
+            return;
+        }
+        
+        Buzon_SanValentin_Singleton.getInstancia().editar(filaSeleccionada, remitente, destinatario, mensaje);
+        actualizarTabla();
+        limpiarCampos();
+    }
+    
+    private void seleccionarMensaje() {
+        int filaSeleccionada = tabla.getSelectedRow();
+        if (filaSeleccionada != -1) {
+            Contenido mensaje = Buzon_SanValentin_Singleton.getInstancia().ObtenerMensajes().get(filaSeleccionada);
+            txt_remitente.setText(mensaje.getRemitario());
+            txt_destinario.setText(mensaje.getDestinario());
+            txt_mensaje.setText(mensaje.getContenido());
+        }
+    }
+}*/
+

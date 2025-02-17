@@ -1,7 +1,6 @@
 package Controlador;
 
 import Modelo.Contenido;
-import java.awt.List;
 import java.util.ArrayList;
 
 public class Buzon_SanValentin_Singleton {
@@ -20,25 +19,19 @@ public class Buzon_SanValentin_Singleton {
     }
     
     public void agregar(String r,String d,String c){
-            mensajes.add(new Contenido(r, d, c));
+        mensajes.add(new Contenido(r, d, c));
     }
     
     public  ArrayList<Contenido> ObtenerMensajes(){
         return mensajes;
     }
-     public void borrar(int p){
-            mensajes.remove(p);
+     public void borrar(int carta){
+        mensajes.remove(carta);
     }
      
-     public void editar(int i, String R, String d, String C){
-         Contenido C1 = new Contenido(R, d, C);
-         mensajes.set(i, C1);
+     public void editar( String Remitente, String Destinario, String Contenido){
+        Contenido C1 = new Contenido(Remitente, Destinario, Contenido);
+        mensajes.set(0, C1);
      }
      
-     public String obtener(int p){
-         String R = mensajes.get(p).remitario;
-         String D = mensajes.get(p).destinario;
-         String C = mensajes.get(p).contenido;
-         return  R+D+C;
-    }
 }
